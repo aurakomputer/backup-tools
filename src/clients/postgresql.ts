@@ -3,7 +3,7 @@ import path from "path";
 import moment from "moment";
 import fs from "fs";
 
-export default class mariadb {
+export default class postgresql {
   client: any;
 
   constructor(client: any) {
@@ -18,11 +18,11 @@ export default class mariadb {
       databases = [this.client.database];
     }
     for (const database of databases) {
-      console.log(`-- start backup mariadb ${database}`);
+      console.log(`-- start backup postgresql ${database}`);
       const backupFile = path.join(
         process.cwd(),
         "backups",
-        "mariadb",
+        "postgresql",
         `${database}-${moment().format("YYYY-MM-DD HH-mm-ss")}.sql.gz`,
       );
 
@@ -32,9 +32,10 @@ export default class mariadb {
         fs.mkdirSync(backupDir, { recursive: true });
       }
 
-      await $`mariadb-dump -u ${this.client.user} -p${this.client.password} -h ${this.client.host} -P ${this.client.port} --databases ${database} --single-transaction | gzip > ${backupFile}`;
+      // Jalankan pg_dump dan kompres dengan gzip
+      await $`PGPASSWORD=${this.client.password} pg_dump -U ${this.client.user} -h ${this.client.host} -p ${this.client.port} -d ${database} --format=plain | gzip > ${backupFile}`;
 
-      console.log(`\x1b[32m-- finish backup mariadb ${database}\x1b[0m`);
+      console.log(`\x1b[32m-- finish backup postgresql ${database}\x1b[0m`);
     }
   }
 }
