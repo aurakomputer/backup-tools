@@ -11,5 +11,9 @@
   },
   "dependencies": {
     "moment": "^2.30.1"
+  },
+  "scripts": {
+    "start": "bun run backup",
+    "backup": "bun run src/index.ts"
   }
 }
