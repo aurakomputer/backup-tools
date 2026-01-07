@@ -1,5 +1,12 @@
-import clients from "./clients/index";
+import config from "../config.json";
 
-for (const client of clients) {
-  client.run();
+async function run(client: any) {
+  const modulePath = `./clients/${client.type}.ts`;
+  const module = await import(modulePath);
+  const instance = new module.default(client);
+  instance.run();
+}
+
+for (const client of config.clients) {
+  run(client);
 }
