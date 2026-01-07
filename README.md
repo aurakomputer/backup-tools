@@ -16,29 +16,37 @@ All-in-One Backup Tools is a versatile backup solution built with [Bun.js](https
 
 - [Bun.js](https://bun.sh) v1.3.4 or later
 
-### Installation
-
-Install dependencies:
-
-```bash
-bun install
-```
-
 ### Usage
+
+Create config.json file
+
+```json
+{
+  "backupDir": "./backups",
+  "clients": [
+    {
+      "type": "mariadb",
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "root",
+      "password": "docker",
+      "databases": "manusa.januari"
+    }
+  ]
+}
+```
 
 To run a backup:
 
 ```bash
-bun start backup
+bunx backup-tools [config.json full path]
 ```
 
-You can customize backup sources and destinations in the configuration file (see project docs for details).
 
 ## Project Structure
 
 - `src/` - Source code for backup logic
-- `backups/` - Backup destination directory
-- `config.json` - Configuration files for backup settings
+- `config.json.sample` - Configuration files example
 - `README.md` - Project documentation
 
 ## Contributing

@@ -1,4 +1,5 @@
 const configPath = process.argv[2] || "../config.json";
+console.log(configPath);
 const config = await import(configPath, { assert: { type: "json" } }).then(
   (m) => m.default,
 );
@@ -6,7 +7,7 @@ const config = await import(configPath, { assert: { type: "json" } }).then(
 async function run(client: any) {
   const modulePath = `./clients/${client.type}.ts`;
   const module = await import(modulePath);
-  const instance = new module.default(client);
+  const instance = new module.default(client, config);
   await instance.run();
 }
 

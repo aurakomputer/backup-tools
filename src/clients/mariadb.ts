@@ -5,9 +5,11 @@ import fs from "fs";
 
 export default class mariadb {
   client: any;
+  config: any;
 
-  constructor(client: any) {
+  constructor(client: any, config: any) {
     this.client = client;
+    this.config = config;
   }
 
   async run() {
@@ -20,8 +22,7 @@ export default class mariadb {
     for (const database of databases) {
       console.log(`-- start backup mariadb ${database}`);
       const backupFile = path.join(
-        process.cwd(),
-        "backups",
+        this.config.backupDir,
         "mariadb",
         `${database}-${moment().format("YYYY-MM-DD HH-mm-ss")}.sql.gz`,
       );
