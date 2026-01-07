@@ -1,7 +1,6 @@
 import { $ } from "bun";
-import path from "path";
 import moment from "moment";
-import fs from "fs";
+import { generateBackupFilePath, getDatabases } from "../utils";
 
 export default class mariadb {
   client: any;
@@ -13,25 +12,15 @@ export default class mariadb {
   }
 
   async run() {
-    let databases = [];
-    if (this.client.databases) {
-      databases = this.client.databases.split(",");
-    } else if (this.client.database) {
-      databases = [this.client.database];
-    }
+    let databases = getDatabases(this.client);
+
     for (const database of databases) {
       console.log(`-- start backup mariadb ${database}`);
-      const backupFile = path.join(
-        this.config.backupDir,
-        "mariadb",
+      const backupFile = generateBackupFilePath(
+        this.config,
+        this.client,
         `${database}-${moment().format("YYYY-MM-DD HH-mm-ss")}.sql.gz`,
       );
-
-      // Pastikan folder backup sudah ada
-      const backupDir = path.dirname(backupFile);
-      if (!fs.existsSync(backupDir)) {
-        fs.mkdirSync(backupDir, { recursive: true });
-      }
 
       await $`mariadb-dump -u ${this.client.user} -p${this.client.password} -h ${this.client.host} -P ${this.client.port} --databases ${database} --single-transaction | gzip > ${backupFile}`;
 
