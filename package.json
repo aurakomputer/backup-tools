@@ -15,5 +15,8 @@
   "scripts": {
     "start": "bun run backup",
     "backup": "bun run src/index.ts"
+  },
+  "bin": {
+    "backup-tools": "bin/backup-tools"
   }
 }
