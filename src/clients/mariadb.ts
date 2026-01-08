@@ -25,6 +25,8 @@ export default class mariadb {
       await $`mariadb-dump -u ${this.client.user} -p${this.client.password} -h ${this.client.host} -P ${this.client.port} --databases ${database} --single-transaction | gzip > ${backupFile}`;
 
       console.log(`\x1b[32m-- finish backup mariadb ${database}\x1b[0m`);
+
+      return backupFile;
     }
   }
 }

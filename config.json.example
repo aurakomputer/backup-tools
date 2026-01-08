@@ -9,5 +9,12 @@
       "password": "docker",
       "databases": "manusa.januari"
     }
+  ],
+  "uploaders": [
+    {
+      "type": "telegram",
+      "token": "123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "chatId": "123456789"
+    }
   ]
 }
