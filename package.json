@@ -1,6 +1,6 @@
 {
   "name": "backup-tools",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "module": "bin/backup-tools",
   "type": "module",
   "private": false,
