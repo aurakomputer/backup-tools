@@ -25,6 +25,8 @@ export default class postgresql {
       await $`PGPASSWORD=${this.client.password} pg_dump -U ${this.client.user} -h ${this.client.host} -p ${this.client.port} -d ${database} --format=plain | gzip > ${backupFile}`;
 
       console.log(`\x1b[32m-- finish backup postgresql ${database}\x1b[0m`);
+
+      return backupFile;
     }
   }
 }
