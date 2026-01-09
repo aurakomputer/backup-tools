@@ -11,9 +11,10 @@ export default class postgresql {
     this.config = config;
   }
 
-  async run() {
+  async run(): Promise<string> {
     let databases = getDatabases(this.client);
 
+    let backupFiles: string[] = [];
     for (const database of databases) {
       console.log(`-- start backup postgresql ${database}`);
       const backupFile = generateBackupFilePath(
@@ -26,7 +27,8 @@ export default class postgresql {
 
       console.log(`\x1b[32m-- finish backup postgresql ${database}\x1b[0m`);
 
-      return backupFile;
+      backupFiles.push(backupFile);
     }
+    return backupFiles;
   }
 }

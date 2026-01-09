@@ -13,6 +13,7 @@ export function getDatabases(client: any) {
   } else if (client.database) {
     databases = [client.database];
   }
+  console.log(databases);
   return databases;
 }
 

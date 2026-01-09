@@ -11,9 +11,10 @@ export default class mariadb {
     this.config = config;
   }
 
-  async run() {
+  async run(): Promise<string[]> {
     let databases = getDatabases(this.client);
 
+    let backupFiles: string[] = [];
     for (const database of databases) {
       console.log(`-- start backup mariadb ${database}`);
       const backupFile = generateBackupFilePath(
@@ -26,7 +27,9 @@ export default class mariadb {
 
       console.log(`\x1b[32m-- finish backup mariadb ${database}\x1b[0m`);
 
-      return backupFile;
+      backupFiles.push(backupFile);
     }
+
+    return backupFiles;
   }
 }

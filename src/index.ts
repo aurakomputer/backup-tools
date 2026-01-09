@@ -21,10 +21,11 @@ async function run(client: any) {
   const modulePath = `./clients/${client.type}.ts`;
   const module = await import(modulePath);
   const instance = new module.default(client, config);
-  const backupFile = await instance.run();
-  for (const uploader of config.uploaders) {
-    await upload(uploader, backupFile);
-  }
+  const backupFiles = await instance.run();
+  for (const backupFile of backupFiles) {
+    for (const uploader of config.uploaders) {
+      await upload(uploader, backupFile);
+    }
 }
 
 export async function main() {
