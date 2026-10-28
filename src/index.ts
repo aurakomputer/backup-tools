@@ -26,14 +26,14 @@ async function run(client: any) {
     for (const uploader of config.uploaders) {
       await upload(uploader, backupFile);
     }
-}
-
-export async function main() {
-  for (const client of config.clients) {
-    await run(client);
   }
-}
 
-if (import.meta.main) {
-  main();
-}
+  export async function main() {
+    for (const client of config.clients) {
+      await run(client);
+    }
+  }
+
+  if (import.meta.main) {
+    main();
+  }

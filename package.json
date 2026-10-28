@@ -11,8 +11,7 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "moment": "^2.31.0",
-    "node-telegram-bot-api": "^2.1.0"
+    "moment": "^2.31.0"
   },
   "scripts": {
     "start": "bun run backup",
