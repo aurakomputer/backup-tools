@@ -1,62 +1,93 @@
-# All-in-One Backup Tools
+# 📦 All-in-One Backup Tools
 
-All-in-One Backup Tools is a versatile backup solution built with [Bun.js](https://bun.sh), designed to simplify and automate the process of backing up your important files and directories. This project leverages Bun's speed and modern JavaScript features to provide a fast, reliable, and easy-to-use backup utility.
+A fast, modular, and lightweight multi-client backup utility powered by **[Bun](https://bun.sh)**. Designed to automate database dumps and file backups, with seamless parallel uploads to various storage destinations.
 
-## Features
+---
 
-- 📦 Backup multiple directories or files with a single command
-- ⚡ Super-fast execution powered by Bun.js
-- 🔄 Incremental and full backup options
-- 🗂️ Customizable backup destinations
-- 📝 Simple configuration and usage
+## ⚡ Core Features
 
-## Getting Started
+- **Multi-Client Support**: Dump multiple databases (MariaDB, PostgreSQL, etc.) in a single workflow.
+- **Multi-Destination Uploaders**: Instantly upload backups to destinations like Telegram, S3, or local storage in parallel.
+- **High Performance**: Native shell integration (`bun $`) and streaming execution powered by Bun.
+- **Zero Heavy Dependencies**: Built with native Web API standards (`fetch`, `FormData`, `Blob`).
+- **Flexible Configuration**: Define database targets and destination uploaders in a single JSON config.
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- [Bun.js](https://bun.sh) v1.3.4 or later
+- **[Bun](https://bun.sh)** `v1.3.4` or higher
+- Database CLI clients (e.g., `mariadb-dump`, `pg_dump`, `gzip`) installed on the host machine.
 
-### Usage
+### Installation
 
-Create config.json file
+No installation required! You can run it directly using `bunx`:
+
+```bash
+bunx backup-tools path/to/config.json
+```
+
+## ⚙️ Configuration
+
+Create a `config.json` file in your project or backup directory:
 
 ```json
 {
-  "backupDir": "./backups",
+  "backupDir": "/var/backups",
   "clients": [
     {
       "type": "mariadb",
       "host": "127.0.0.1",
       "port": 3306,
       "user": "root",
-      "password": "docker",
-      "databases": "manusa.januari"
+      "password": "your_password",
+      "databases": ["db_prod_1", "db_prod_2"]
+    },
+    {
+      "type": "postgresql",
+      "host": "127.0.0.1",
+      "port": 5432,
+      "user": "postgres",
+      "password": "your_password",
+      "database": "analytics"
+    }
+  ],
+  "uploaders": [
+    {
+      "type": "telegram",
+      "token": "YOUR_BOT_TOKEN",
+      "chatId": "-100123456789"
     }
   ]
 }
 ```
 
-To run a backup:
+## 🛠️ Project Architecture
 
-```bash
-bunx backup-tools [config.json full path]
+```text
+.
+├── src/
+│   ├── clients/        # Database dump engines (e.g., mariadb.ts, postgresql.ts)
+│   ├── uploaders/      # Backup destinations (e.g., telegram.ts, s3.ts)
+│   ├── index.ts        # Main CLI runner
+│   ├── types.ts        # TypeScript configuration definitions
+│   └── utils.ts        # Path resolver & database helpers
+├── config.json.sample  # Configuration template
+└── README.md
+
 ```
 
+### Adding a New Client or Uploader
 
-## Project Structure
+- **New Client**: Add a new module under `src/clients/<type>.ts` implementing the `ClientRunner` interface.
+- **New Uploader**: Add a new module under `src/uploaders/<type>.ts` implementing the `UploaderRunner` interface.
 
-- `src/` - Source code for backup logic
-- `config.json.sample` - Configuration files example
-- `README.md` - Project documentation
+## 🤝 Contributing
 
-## Contributing
+Contributions are welcome! Feel free to open an issue or submit a pull request for new database client drivers, upload destinations, or feature enhancements.
 
-Contributions are welcome! Please open issues or submit pull requests for improvements or bug fixes.
+## 📄 License
 
-## License
-
-This project is licensed under the MIT License.
-
----
-
-Project initialized with `bun init` using Bun v1.3.4.
+This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE).
