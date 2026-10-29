@@ -1,4 +1,5 @@
 // types.ts
+// src/types.ts
 
 export type ClientType = "mariadb" | "postgresql" | string;
 export type UploaderType = "telegram" | string;
@@ -12,6 +13,13 @@ export interface BaseClientConfig {
   database?: string;
   databases?: string[] | string;
 }
+export interface SQLiteClientConfig {
+  type: "sqlite";
+  database?: string;
+  databases?: string[] | string;
+}
+
+export type ClientConfig = BaseClientConfig | SQLiteClientConfig;
 
 export interface TelegramUploaderConfig {
   type: "telegram";
