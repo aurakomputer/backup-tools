@@ -1,33 +1,26 @@
 import fs from "fs";
+import path from "path";
+import type { TelegramUploaderConfig, UploaderRunner } from "../types";
 
-export default class Telegram {
-  filePath: string;
-  uploader: {
-    token: string;
-    chatId: string | number;
-  };
+export default class Telegram implements UploaderRunner {
+  constructor(
+    private filePath: string,
+    private uploader: TelegramUploaderConfig,
+  ) {}
 
-  constructor(filePath: string, uploader: any) {
-    this.filePath = filePath;
-    this.uploader = uploader;
-  }
-
-  async upload() {
+  async upload(): Promise<void> {
     const { token, chatId } = this.uploader;
     const url = `https://api.telegram.org/bot${token}/sendDocument`;
 
     try {
-      // 1. Baca file dan ubah menjadi Blob / File standar Node.js
-      const fileBuffer = fs.readFileSync(this.filePath);
-      const filename = this.filePath.split("/").pop() || "document";
-      const fileBlob = new Blob([fileBuffer]);
+      // Menggunakan fs.openAsBlob agar tidak memuat seluruh file besar sekaligus ke memori
+      const fileBlob = await fs.openAsBlob(this.filePath);
+      const filename = path.basename(this.filePath);
 
-      // 2. Buat FormData native
       const formData = new FormData();
       formData.append("chat_id", String(chatId));
       formData.append("document", fileBlob, filename);
 
-      // 3. Kirim request menggunakan native fetch
       const response = await fetch(url, {
         method: "POST",
         body: formData,
@@ -36,12 +29,14 @@ export default class Telegram {
       const data = await response.json();
 
       if (!response.ok || !data.ok) {
-        throw new Error(data.description || "Gagal mengunggah file");
+        throw new Error(
+          data.description || "Gagal mengunggah file ke Telegram",
+        );
       }
 
-      console.log("File berhasil dikirim!");
+      console.log(`[Telegram] File ${filename} berhasil dikirim!`);
     } catch (err) {
-      console.error("Gagal mengirim file:", err);
+      console.error(`[Telegram Error] Gagal mengirim ${this.filePath}:`, err);
     }
   }
 }
