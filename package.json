@@ -1,23 +1,26 @@
 {
   "name": "backup-tools",
   "version": "2.2.1",
-  "module": "bin/backup-tools",
+  "main": "src/index.ts",
   "type": "module",
   "private": false,
-  "devDependencies": {
-    "@types/bun": "^1.4.4"
+  "bin": {
+    "backup-tools": "bin/backup-tools"
   },
-  "peerDependencies": {
-    "typescript": "^7.0.2"
+  "files": [
+    "bin",
+    "src"
+  ],
+  "scripts": {
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
     "moment": "^2.31.0"
   },
-  "scripts": {
-    "start": "bun run backup",
-    "backup": "bun run src/index.ts"
+  "devDependencies": {
+    "@types/bun": "^1.2.0"
   },
-  "bin": {
-    "backup-tools": "bin/backup-tools"
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
