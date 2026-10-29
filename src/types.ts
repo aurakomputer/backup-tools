@@ -19,6 +19,13 @@ export interface SQLiteClientConfig {
   databases?: string[] | string;
 }
 
+export interface FolderClientConfig {
+  type: "folder" | "file";
+  path?: string;
+  paths?: string[] | string;
+  exclude?: string[];
+}
+
 export type ClientConfig = BaseClientConfig | SQLiteClientConfig;
 
 export interface TelegramUploaderConfig {
