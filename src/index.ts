@@ -1,36 +1,44 @@
-const configPath = process.argv[2] || "../config.json";
-console.log(configPath);
-const config = await import(configPath, { assert: { type: "json" } }).then(
-  (m) => m.default,
-);
+import type { Config, BaseClientConfig, UploaderConfig } from "./types";
 
-/**
- * call upload function
- */
-async function upload(uploader: any, backupFile: string) {
-  const modulePath = `./uploaders/${uploader.type}.ts`;
-  const module = await import(modulePath);
-  const instance = new module.default(backupFile, uploader);
-  await instance.upload();
+const configPath = process.argv[2] || "../config.json";
+console.log(`Loading config from: ${configPath}`);
+
+const config: Config = await import(configPath, {
+  assert: { type: "json" },
+}).then((m) => m.default);
+
+async function upload(uploader: UploaderConfig, backupFile: string) {
+  try {
+    const modulePath = `./uploaders/${uploader.type}.ts`;
+    const module = await import(modulePath);
+    const instance = new module.default(backupFile, uploader);
+    await instance.upload();
+  } catch (error) {
+    console.error(
+      `[UPLOAD ERROR] Uploader ${uploader.type} gagal untuk file ${backupFile}:`,
+      error,
+    );
+  }
 }
 
-/**
- * call backup client run function
- */
-async function run(client: any) {
+async function runClient(client: BaseClientConfig) {
   const modulePath = `./clients/${client.type}.ts`;
   const module = await import(modulePath);
   const instance = new module.default(client, config);
-  const backupFiles = await instance.run();
+  const backupFiles: string[] = await instance.run();
+
+  // Unggah file secara paralel ke seluruh uploaders
   for (const backupFile of backupFiles) {
-    for (const uploader of config.uploaders) {
-      await upload(uploader, backupFile);
-    }
+    const uploadTasks = config.uploaders.map((uploader) =>
+      upload(uploader, backupFile),
+    );
+    await Promise.allSettled(uploadTasks);
+  }
 }
 
 export async function main() {
   for (const client of config.clients) {
-    await run(client);
+    await runClient(client);
   }
 }
 

@@ -1,27 +1,28 @@
 import moment from "moment";
 import path from "path";
 import fs from "fs";
+import type { BaseClientConfig, Config } from "./types";
 
-export function getDatabases(client: any) {
-  let databases = [];
+export function getDatabases(client: BaseClientConfig): string[] {
   if (client.databases) {
     if (typeof client.databases === "string") {
-      databases = client.databases.split(",");
-    } else if (Array.isArray(client.databases)) {
-      databases = client.databases;
+      return client.databases.split(",").map((db) => db.trim());
     }
-  } else if (client.database) {
-    databases = [client.database];
+    if (Array.isArray(client.databases)) {
+      return client.databases;
+    }
   }
-  console.log(databases);
-  return databases;
+  if (client.database) {
+    return [client.database];
+  }
+  return [];
 }
 
 export function generateBackupFilePath(
-  config: any,
-  client: any,
+  config: Config,
+  client: BaseClientConfig,
   fileName: string,
-) {
+): string {
   const backupPath = path.join(
     config.backupDir,
     client.type,
@@ -29,7 +30,6 @@ export function generateBackupFilePath(
     fileName,
   );
 
-  // Pastikan folder backup sudah ada
   const backupDir = path.dirname(backupPath);
   if (!fs.existsSync(backupDir)) {
     fs.mkdirSync(backupDir, { recursive: true });

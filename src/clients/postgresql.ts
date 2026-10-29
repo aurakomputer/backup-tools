@@ -1,34 +1,32 @@
 import { $ } from "bun";
 import moment from "moment";
 import { generateBackupFilePath, getDatabases } from "../utils";
+import type { BaseClientConfig, Config, ClientRunner } from "../types";
 
-export default class postgresql {
-  client: any;
-  config: any;
+export default class Postgresql implements ClientRunner {
+  constructor(
+    private client: BaseClientConfig,
+    private config: Config,
+  ) {}
 
-  constructor(client: any, config: any) {
-    this.client = client;
-    this.config = config;
-  }
+  async run(): Promise<string[]> {
+    const databases = getDatabases(this.client);
+    const backupFiles: string[] = [];
 
-  async run(): Promise<string> {
-    let databases = getDatabases(this.client);
-
-    let backupFiles: string[] = [];
     for (const database of databases) {
-      console.log(`-- start backup postgresql ${database}`);
+      console.log(`-- Start backup PostgreSQL: ${database}`);
       const backupFile = generateBackupFilePath(
         this.config,
         this.client,
-        `${database}-${moment().format("YYYY-MM-DD HH-mm-ss")}.sql.gz`,
+        `${database}-${moment().format("YYYY-MM-DD_HH-mm-ss")}.sql.gz`,
       );
 
       await $`PGPASSWORD=${this.client.password} pg_dump -U ${this.client.user} -h ${this.client.host} -p ${this.client.port} -d ${database} --format=plain | gzip > ${backupFile}`;
 
-      console.log(`\x1b[32m-- finish backup postgresql ${database}\x1b[0m`);
-
+      console.log(`\x1b[32m-- Finish backup PostgreSQL: ${database}\x1b[0m`);
       backupFiles.push(backupFile);
     }
+
     return backupFiles;
   }
 }

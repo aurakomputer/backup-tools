@@ -1,32 +1,29 @@
 import { $ } from "bun";
 import moment from "moment";
 import { generateBackupFilePath, getDatabases } from "../utils";
+import type { BaseClientConfig, Config, ClientRunner } from "../types";
 
-export default class mariadb {
-  client: any;
-  config: any;
-
-  constructor(client: any, config: any) {
-    this.client = client;
-    this.config = config;
-  }
+export default class Mariadb implements ClientRunner {
+  constructor(
+    private client: BaseClientConfig,
+    private config: Config,
+  ) {}
 
   async run(): Promise<string[]> {
-    let databases = getDatabases(this.client);
+    const databases = getDatabases(this.client);
+    const backupFiles: string[] = [];
 
-    let backupFiles: string[] = [];
     for (const database of databases) {
-      console.log(`-- start backup mariadb ${database}`);
+      console.log(`-- Start backup MariaDB: ${database}`);
       const backupFile = generateBackupFilePath(
         this.config,
         this.client,
-        `${database}-${moment().format("YYYY-MM-DD HH-mm-ss")}.sql.gz`,
+        `${database}-${moment().format("YYYY-MM-DD_HH-mm-ss")}.sql.gz`,
       );
 
       await $`mariadb-dump -u ${this.client.user} -p${this.client.password} -h ${this.client.host} -P ${this.client.port} --databases ${database} --single-transaction | gzip > ${backupFile}`;
 
-      console.log(`\x1b[32m-- finish backup mariadb ${database}\x1b[0m`);
-
+      console.log(`\x1b[32m-- Finish backup MariaDB: ${database}\x1b[0m`);
       backupFiles.push(backupFile);
     }
 

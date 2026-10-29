@@ -1,27 +1,42 @@
-import TelegramBot from "node-telegram-bot-api";
 import fs from "fs";
-export default class Telegram {
-  filePath: string;
-  uploader: any;
+import path from "path";
+import type { TelegramUploaderConfig, UploaderRunner } from "../types";
 
-  constructor(filePath: string, uploader: any) {
-    this.filePath = filePath;
-    this.uploader = uploader;
-  }
+export default class Telegram implements UploaderRunner {
+  constructor(
+    private filePath: string,
+    private uploader: TelegramUploaderConfig,
+  ) {}
 
-  async upload() {
+  async upload(): Promise<void> {
     const { token, chatId } = this.uploader;
+    const url = `https://api.telegram.org/bot${token}/sendDocument`;
 
-    const bot = new TelegramBot(token, { polling: false });
+    try {
+      // Menggunakan fs.openAsBlob agar tidak memuat seluruh file besar sekaligus ke memori
+      const fileBlob = await fs.openAsBlob(this.filePath);
+      const filename = path.basename(this.filePath);
 
-    // Mengirim file lokal
-    bot
-      .sendDocument(chatId, fs.createReadStream(this.filePath))
-      .then(() => {
-        console.log("File berhasil dikirim!");
-      })
-      .catch((err) => {
-        console.error("Gagal mengirim file:", err);
+      const formData = new FormData();
+      formData.append("chat_id", String(chatId));
+      formData.append("document", fileBlob, filename);
+
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
       });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.ok) {
+        throw new Error(
+          data.description || "Gagal mengunggah file ke Telegram",
+        );
+      }
+
+      console.log(`[Telegram] File ${filename} berhasil dikirim!`);
+    } catch (err) {
+      console.error(`[Telegram Error] Gagal mengirim ${this.filePath}:`, err);
+    }
   }
 }
